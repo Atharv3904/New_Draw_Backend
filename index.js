@@ -1,7 +1,7 @@
 const express = require("express");
 const http = require("http");
 const cors = require("cors");
-const setupSocket = require("./socket");
+const setupSocket = require("./src/socket");
 const app = express();
 const port = process.env.PORT || 4990;
 
