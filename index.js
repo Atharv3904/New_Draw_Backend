@@ -7,7 +7,9 @@ const port = process.env.PORT || 4990;
 
 app.use(
   cors({
-    origin: "*",
+    origin: ["http://localhost:5173", "https://new-draw-frontend.vercel.app/"],
+    methods: ["GET", "POST"],
+    credentials: true,
   }),
 );
 
