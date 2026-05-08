@@ -1,16 +1,28 @@
 const { Server } = require("socket.io");
 
 const rooms = new Map();
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+  "https://new-draw-frontend.vercel.app",
+];
+
+function isAllowedOrigin(origin) {
+  if (!origin) {
+    return true;
+  }
+
+  return allowedOrigins.includes(origin) || origin.endsWith(".vercel.app");
+}
 
 function setupSocket(server) {
   const io = new Server(server, {
     cors: {
-      origin: [
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "https://new-draw-frontend.vercel.app",
-      ],
+      origin(origin, callback) {
+        callback(null, isAllowedOrigin(origin));
+      },
       methods: ["GET", "POST"],
+      credentials: true,
     },
   });
 
