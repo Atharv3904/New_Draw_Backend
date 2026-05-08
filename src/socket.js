@@ -7,7 +7,8 @@ function setupSocket(server) {
     cors: {
       origin: [
         "http://localhost:5173",
-        "https://new-draw-frontend.vercel.app/",
+        "http://127.0.0.1:5173",
+        "https://new-draw-frontend.vercel.app",
       ],
       methods: ["GET", "POST"],
     },
@@ -16,47 +17,48 @@ function setupSocket(server) {
   io.on("connection", (socket) => {
     console.log("User connected:", socket.id);
 
+    socket.on("draw", (data) => {
+      socket.to(data.roomId).emit("draw", data);
+    });
+
+    socket.on("clear-canvas", (roomId) => {
+      const room = rooms.get(roomId);
+      if (room) {
+        room.elements = [];
+      }
+      socket.to(roomId).emit("clear-canvas");
+    });
+
+    socket.on("board-elements", (data) => {
+      const room = rooms.get(data.roomId);
+
+      if (room) {
+        room.elements = data.elements;
+      }
+
+      socket.to(data.roomId).emit("board-elements", data.elements);
+    });
+
+    socket.on("chat-message", (data) => {
+      const room = rooms.get(data.roomId);
+
+      if (!room) {
+        return;
+      }
+
+      const messageData = {
+        username: data.username,
+        text: data.text,
+        time: new Date().toLocaleTimeString(),
+      };
+
+      room.messages.push(messageData);
+
+      io.to(data.roomId).emit("chat-message", messageData);
+    });
+
     socket.on("join-room", ({ username, roomId }) => {
       socket.join(roomId);
-
-      socket.on("draw", (data) => {
-        socket.to(data.roomId).emit("draw", data);
-      });
-      socket.on("clear-canvas", (roomId) => {
-        const room = rooms.get(roomId);
-        if (room) {
-          room.elements = [];
-        }
-        socket.to(roomId).emit("clear-canvas");
-      });
-
-      socket.on("board-elements", (data) => {
-        const room = rooms.get(data.roomId);
-
-        if (room) {
-          room.elements = data.elements;
-        }
-
-        socket.to(data.roomId).emit("board-elements", data.elements);
-      });
-
-      socket.on("chat-message", (data) => {
-        const room = rooms.get(data.roomId);
-
-        if (!room) {
-          return;
-        }
-
-        const messageData = {
-          username: data.username,
-          text: data.text,
-          time: new Date().toLocaleTimeString(),
-        };
-
-        room.messages.push(messageData);
-
-        io.to(data.roomId).emit("chat-message", messageData);
-      });
 
       if (!rooms.has(roomId)) {
         rooms.set(roomId, {
