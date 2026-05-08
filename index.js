@@ -3,7 +3,7 @@ const http = require("http");
 const cors = require("cors");
 const setupSocket = require("./src/socket");
 const app = express();
-const port = process.env.PORT || 4990;
+const port = process.env.PORT || 4590;
 
 const allowedOrigins = [
   "http://localhost:5173",
@@ -23,7 +23,10 @@ function isAllowedOrigin(origin) {
     return true;
   }
 
-  return allowedOrigins.includes(origin) || allowedOriginPatterns.some((pattern) => pattern.test(origin));
+  return (
+    allowedOrigins.includes(origin) ||
+    allowedOriginPatterns.some((pattern) => pattern.test(origin))
+  );
 }
 
 app.use(
