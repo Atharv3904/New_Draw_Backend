@@ -5,6 +5,13 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://127.0.0.1:5173",
   "https://new-draw-frontend.vercel.app",
+  process.env.FRONTEND_URL,
+  process.env.FRONTEND_PREVIEW_URL,
+].filter(Boolean);
+
+const allowedOriginPatterns = [
+  /^https:\/\/new-draw-frontend.*\.vercel\.app$/,
+  /^https:\/\/.*-atharvs-projects-.*\.vercel\.app$/,
 ];
 
 function isAllowedOrigin(origin) {
@@ -12,7 +19,7 @@ function isAllowedOrigin(origin) {
     return true;
   }
 
-  return allowedOrigins.includes(origin) || origin.endsWith(".vercel.app");
+  return allowedOrigins.includes(origin) || allowedOriginPatterns.some((pattern) => pattern.test(origin));
 }
 
 function setupSocket(server) {
